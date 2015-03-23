@@ -3,7 +3,7 @@ package org.d2c.common;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface PrimeTask extends Task {
+public interface PrimeTask extends Task<Void> {
 
     /**
      * Get the list of computed results.

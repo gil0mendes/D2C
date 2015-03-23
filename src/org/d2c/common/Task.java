@@ -3,11 +3,11 @@ package org.d2c.common;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface Task extends Remote {
+public interface Task<T> extends Remote {
 
     /**
      * Execute an ambiguous operation
      */
-    public abstract void run() throws RemoteException;
+    public abstract T run() throws RemoteException;
 
 }

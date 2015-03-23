@@ -21,3 +21,6 @@ Divide-To-Conquer (JAVA RMI Task Dispatching)
 * (Master) Espera por todas as sub-tarefas
 * (Master) Ordena os sub-resultados e juntaos
 * (Master) Apresenta o resultado
+
+# Arquitetura
+![Arquitetura](./architecture.jpg)

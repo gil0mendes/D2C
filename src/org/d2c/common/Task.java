@@ -15,8 +15,18 @@ public interface Task<T> extends Remote {
      * Get the task UUID
      *
      * @return
+     *
      * @throws RemoteException
      */
     public abstract UUID getUID() throws RemoteException;
+
+    /**
+     * Get the Master owner of this task.
+     *
+     * @return
+     *
+     * @throws RemoteException
+     */
+    public abstract Master getMaster() throws RemoteException;
 
 }

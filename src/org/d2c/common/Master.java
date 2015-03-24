@@ -11,6 +11,6 @@ public interface Master extends Remote {
      * @param task
      * @throws RemoteException
      */
-    public abstract void receive(Task task) throws RemoteException;
+    public abstract void receive(Task task, Object result) throws Exception;
 
 }

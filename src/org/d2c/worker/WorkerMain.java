@@ -108,6 +108,9 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
 
     public static void main(String[] args)
     {
+        // start Logger
+        Logger.config(1);
+
         // set configurations for the JAVA Security Policy
         ClassLoader cl = WorkerMain.class.getClassLoader();
         URL policyURL = cl.getResource("org/d2c/common/policy.all");

@@ -1,5 +1,6 @@
 package org.d2c.client;
 
+import org.d2c.common.Master;
 import org.d2c.common.Task;
 
 import java.rmi.RemoteException;
@@ -26,6 +27,11 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
     private final List<Integer> resultList = new LinkedList<Integer>();
 
     /**
+     * Task Master owner
+     */
+    private Master masterOwner;
+
+    /**
      * Task UUID
      */
     private UUID taskUUID;
@@ -40,7 +46,7 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
      * @param lower
      * @param upper
      */
-    public PrimeTask(Integer lower, Integer upper) throws Exception
+    public PrimeTask(Integer lower, Integer upper, Master owner) throws Exception
     {
         // test the values
         if ((upper - lower) > 1000 || (upper - lower) <= 0) {
@@ -50,6 +56,7 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
         // set values
         this.LOWER_LIMIT = lower;
         this.UPPER_LIMIT = upper;
+        this.masterOwner = owner;
 
         // generate Task UUID
         this.taskUUID = UUID.randomUUID();
@@ -114,5 +121,11 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
     public UUID getUID() throws RemoteException
     {
         return this.taskUUID;
+    }
+
+    @Override
+    public Master getMaster() throws RemoteException
+    {
+        return this.masterOwner;
     }
 }

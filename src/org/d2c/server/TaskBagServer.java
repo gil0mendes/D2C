@@ -72,10 +72,18 @@ public class TaskBagServer implements TaskBag {
     @Override
     public void responseTaskCallback(Task task, Object result) throws RemoteException
     {
+        // inform the execution end of task
+        Logger.info("Task (" + task.getUID() + ") was end their job");
+
         // free the worker
         this.freeWorkers.add(this.busyWorkers.remove(task.getUID()));
 
-        // @TODO redirect the task to the Master
+        // get task master owner
+        try {
+            task.getMaster().receive(task, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

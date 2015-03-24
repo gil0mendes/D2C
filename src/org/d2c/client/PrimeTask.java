@@ -6,12 +6,29 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>> {
 
+    /**
+     * Lower limit
+     */
     private final Integer LOWER_LIMIT;
+
+    /**
+     * Upper limit
+     */
     private final Integer UPPER_LIMIT;
+
+    /**
+     * List with all calculated prime number in the given range
+     */
     private final List<Integer> resultList = new LinkedList<Integer>();
+
+    /**
+     * Task UUID
+     */
+    private UUID taskUUID;
 
     /**
      * Set the bound of the calculus.
@@ -33,6 +50,9 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
         // set values
         this.LOWER_LIMIT = lower;
         this.UPPER_LIMIT = upper;
+
+        // generate Task UUID
+        this.taskUUID = UUID.randomUUID();
     }
 
     @Override
@@ -54,13 +74,21 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
      */
     private static boolean isPrime(Integer n)
     {
-        // check if n is a multiple of 2
-        if (n % 2 == 0) {
+        if (n < 2) {
             return false;
         }
-        // if not, then just check the odds
-        for (int i = 3; i * i <= n; i += 2) {
-            if (n % i == 0) {
+
+        if (n == 2 || n == 3) {
+            return true;
+        }
+
+        if (n % 2 == 0 || n % 3 == 0) {
+            return false;
+        }
+
+        long sqrtN = (long) Math.sqrt(n) + 1;
+        for (long i = 6L; i <= sqrtN; i += 6) {
+            if (n % (i - 1) == 0 || n % (i + 1) == 0) {
                 return false;
             }
         }
@@ -82,4 +110,9 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
         }
     }
 
+    @Override
+    public UUID getUID() throws RemoteException
+    {
+        return this.taskUUID;
+    }
 }

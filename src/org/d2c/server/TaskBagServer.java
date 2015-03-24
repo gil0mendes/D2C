@@ -1,24 +1,42 @@
 package org.d2c.server;
 
+import org.d2c.common.Logger;
 import org.d2c.common.Task;
 import org.d2c.common.TaskBag;
+import org.d2c.common.Worker;
 
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class TaskBagServer implements TaskBag {
 
     /**
      * Queue with all tasks who needs be processed
      */
-    Queue<Task> tasks = new LinkedList<Task>();
+    private Queue<Task> tasks = new LinkedList<Task>();
 
-    public TaskBagServer() {}
+    /**
+     * List of registered workers
+     */
+    protected List<Worker> registeredWorks = new LinkedList<Worker>();
+
+    /**
+     * List of free workers
+     */
+    protected List<Worker> freeWorkers = new LinkedList<Worker>();
+
+    /**
+     * List of busy workers
+     */
+    protected HashMap<UUID, Worker> busyWorkers = new LinkedHashMap<UUID, Worker>();
+
+    public TaskBagServer()
+    {
+    }
 
     /**
      * Receive a new tasks and add it to the queue.
@@ -28,7 +46,7 @@ public class TaskBagServer implements TaskBag {
      * @throws RemoteException
      */
     @Override
-    public void receive(Task task) throws RemoteException
+    public void receiveTask(Task task) throws RemoteException
     {
         // add the new received task to the queue
         // to be processed later
@@ -36,6 +54,28 @@ public class TaskBagServer implements TaskBag {
             System.out.println("=> new task received");
             tasks.add(task);
         }
+    }
+
+    @Override
+    public void registerWorker(Worker worker) throws RemoteException
+    {
+        // register the new worker
+        this.registeredWorks.add(worker);
+
+        // add to the list of free workers
+        this.freeWorkers.add(worker);
+
+        // Inform the registry
+        Logger.info("A new Worker as been registered");
+    }
+
+    @Override
+    public void responseTaskCallback(Task task, Object result) throws RemoteException
+    {
+        // free the worker
+        this.freeWorkers.add(this.busyWorkers.remove(task.getUID()));
+
+        // @TODO redirect the task to the Master
     }
 
     /**
@@ -47,11 +87,34 @@ public class TaskBagServer implements TaskBag {
      */
     protected synchronized Task getNextTask()
     {
+        // get the next task to be processed
         return this.tasks.poll();
+    }
+
+    /**
+     * If exists, this method returns the next free
+     * worker.
+     *
+     * @return
+     *
+     * @TODO Test if the Worker is up and if have good pings
+     */
+    protected synchronized Worker getFreeWorker()
+    {
+        // get the next free worker
+        if (this.freeWorkers.size() == 0) {
+            return null;
+        }
+        else {
+            return this.freeWorkers.remove(0);
+        }
     }
 
     public static void main(String[] args)
     {
+        // start Logger
+        Logger.config(1);
+
         // set configurations for the JAVA Security Policy
         ClassLoader cl = TaskBagServer.class.getClassLoader();
         URL policyURL = cl.getResource("org/d2c/common/policy.all");
@@ -64,7 +127,7 @@ public class TaskBagServer implements TaskBag {
 
         try {
             // create a new registry
-            Registry registry = null;
+            Registry registry;
 
             try {
                 registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
@@ -76,8 +139,7 @@ public class TaskBagServer implements TaskBag {
             TaskBag taskBagInstance = new TaskBagServer();
             TaskBag taskBagStub = (TaskBag) UnicastRemoteObject.exportObject(taskBagInstance, 0);
             registry.rebind("TaskBag", taskBagStub);
-
-            System.out.println("TaskBag registered!\nServer is now running...");
+            Logger.info("TaskBag registered!\nServer is now running...");
 
             // start processing the tasks queue
             (new ProcessorTaskQueue((TaskBagServer) taskBagInstance)).run();

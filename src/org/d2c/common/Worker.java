@@ -1,7 +1,10 @@
 package org.d2c.common;
 
+import org.d2c.common.exceptions.BusyWorkerException;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public interface Worker extends Remote {
 
@@ -18,6 +21,13 @@ public interface Worker extends Remote {
      * @param task
      * @throws RemoteException
      */
-    public abstract void receive(Task task) throws RemoteException;
+    public abstract void receive(Task task) throws RemoteException, BusyWorkerException;
+
+    /**
+     * Get UUID
+     *
+     * @return
+     */
+    public abstract UUID getUUID() throws RemoteException;
 
 }

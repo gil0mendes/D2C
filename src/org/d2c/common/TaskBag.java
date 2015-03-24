@@ -10,6 +10,25 @@ public interface TaskBag extends Remote {
      *
      * @param task
      */
-    public abstract void receive(Task task) throws RemoteException;
+    public abstract void receiveTask(Task task) throws RemoteException;
+
+    /**
+     * Register a new Worker.
+     *
+     * @param worker
+     *
+     * @throws RemoteException
+     */
+    public abstract void registerWorker(Worker worker) throws RemoteException;
+
+    /**
+     * This method receives the tasks results and redirect to the owner Master
+     *
+     * @param task
+     * @param result
+     *
+     * @throws RemoteException
+     */
+    public abstract void responseTaskCallback(Task task, Object result) throws RemoteException;
 
 }

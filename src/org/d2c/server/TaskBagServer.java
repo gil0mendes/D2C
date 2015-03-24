@@ -14,7 +14,8 @@ public class TaskBagServer implements TaskBag {
     @Override
     public void receive(Task task) throws RemoteException
     {
-
+        // simply run the task (only for tests)
+        task.run();
     }
 
     public static void main(String[] args)

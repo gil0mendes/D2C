@@ -3,10 +3,11 @@ package org.d2c.client;
 import org.d2c.common.Task;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PrimeTask implements Task<List<Integer>> {
+public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>> {
 
     private final Integer LOWER_LIMIT;
     private final Integer UPPER_LIMIT;

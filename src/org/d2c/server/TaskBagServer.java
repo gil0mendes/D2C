@@ -18,10 +18,7 @@ public class TaskBagServer implements TaskBag {
      */
     Queue<Task> tasks = new LinkedList<Task>();
 
-    public TaskBagServer()
-    {
-
-    }
+    public TaskBagServer() {}
 
     /**
      * Receive a new tasks and add it to the queue.

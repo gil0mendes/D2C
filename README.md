@@ -10,9 +10,9 @@ Divide-To-Conquer (JAVA RMI Task Dispatching)
 * Recovery entre o Master e o TaskBag
 
 # Caminho (start-to-end)
-* (Master) Cria uma tarefa
-* (Master) Divide em sub-tarefas
-* (Master) Envia as sub-tarefas para o TaskBag
+* ~~(Master) Cria uma tarefa~~
+* ~~(Master) Divide em sub-tarefas~~
+* ~~(Master) Envia as sub-tarefas para o TaskBag~~
 * (TaskBag) Encontra os melhores Works para trabalho
 * (TaskBag) Envia a sub-tarefa para o Worker
 * (Worker) Executa a sub-tarefa atribuida

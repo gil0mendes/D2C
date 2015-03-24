@@ -41,7 +41,7 @@ public class ProcessorTaskQueue implements Runnable {
             else {
                 /**
                  * Wait some seconds to check again if exists
-                 * a new Tasks to process
+                 * a new Task to be process
                  */
                 try {
                     Thread.sleep(TIME_TO_WAIT);

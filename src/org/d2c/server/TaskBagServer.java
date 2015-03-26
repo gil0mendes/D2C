@@ -66,7 +66,7 @@ public class TaskBagServer implements TaskBag {
         this.freeWorkers.add(worker);
 
         // Inform the registry
-        Logger.info("A new Worker as been registered");
+        Logger.info("A new Worker (" + worker.getUUID() + ") as been registered");
     }
 
     @Override

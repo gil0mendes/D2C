@@ -12,7 +12,7 @@ public class ProcessorTaskQueue implements Runnable {
     /**
      * Time to wait for new tasks
      */
-    private final static int TIME_TO_WAIT = 3000;
+    private final static int TIME_TO_WAIT = 1000;
 
     /**
      * TaskBag instance

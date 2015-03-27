@@ -12,6 +12,8 @@ import java.rmi.registry.Registry;
 import java.rmi.server.RemoteObject;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class TaskBagServer extends RemoteObject implements TaskBag {
 
@@ -43,27 +45,33 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
     /**
      * List of registered workers
      */
-    protected List<Worker> registeredWorks = new LinkedList<>();
+    protected ConcurrentMap<UUID, Worker> registeredWorks = new ConcurrentHashMap<>();
 
     /**
      * List of free workers
      */
-    protected List<Worker> freeWorkers = new LinkedList<>();
+    protected List<UUID> freeWorkers = new LinkedList<>();
 
     /**
      * List of busy workers
      */
-    protected HashMap<UUID, Worker> busyWorkers = new LinkedHashMap<>();
+    protected HashMap<Task, UUID> busyWorkers = new LinkedHashMap<>();
 
     /**
      * Instance for registry
      */
-    private Registry registry;
+    protected Registry registry;
 
     /**
      * ProcessorTaskQueue instance
      */
-    private ProcessorTaskQueue processorTaskQueue = new ProcessorTaskQueue(this);
+    private ProcessorTaskQueue processorTaskQueue;
+
+    /**
+     * Thread to monitor the Workers if their are alive
+     * and with energy to preform work
+     */
+    private WorkersMonitorThread workersMonitorThread;
 
     public TaskBagServer()
     {
@@ -77,37 +85,66 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
      * @throws RemoteException
      */
     @Override
-    public void receiveTask(Task task) throws RemoteException
+    public synchronized void registerTask(Task task) throws RemoteException
     {
         // add the new received task to the queue
         // to be processed later
         synchronized (tasks) {
-            Logger.info("New task received");
+            Logger.info("New task (" + task.getUUID() + ") received");
             tasks.add(task);
         }
     }
 
     @Override
-    public void registerWorker(Worker worker) throws RemoteException
+    public synchronized void registerWorker(Worker worker) throws RemoteException
     {
         // register the new worker
-        this.registeredWorks.add(worker);
+        this.registeredWorks.put(worker.getUUID(), worker);
 
         // add to the list of free workers
-        this.freeWorkers.add(worker);
+        this.freeWorkers.add(worker.getUUID());
 
         // Inform the registry
         Logger.info("A new Worker (" + worker.getUUID() + ") as been registered");
     }
 
     @Override
+    public synchronized void removeWorker(UUID workerUUID) throws RemoteException
+    {
+        // remove worker from the TaskBag
+        this.freeWorkers.remove(workerUUID);
+        this.registeredWorks.remove(workerUUID);
+
+        // remove the worker from Registry
+        try {
+            this.registry.unbind(workerUUID.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // If the Worker are busy transfer the task
+        // to another free worker
+        for (Map.Entry entry : this.busyWorkers.entrySet()) {
+            if (workerUUID.equals(entry.getValue())) {
+                Task task = (Task) entry.getKey();
+                this.registerTask(task);
+                this.busyWorkers.remove(task);
+                break;
+            }
+        }
+
+        // inform the worker kill
+        Logger.info("The Worker(" + workerUUID + ") has been killed");
+    }
+
+    @Override
     public void responseTaskCallback(Task task, Object result) throws RemoteException
     {
         // inform the execution end of task
-        Logger.info("Task (" + task.getUID() + ") was end their job");
+        Logger.info("Task (" + task.getUUID() + ") was end their job");
 
         // free the worker
-        this.freeWorkers.add(this.busyWorkers.remove(task.getUID()));
+        this.freeWorkers.add(this.busyWorkers.remove(task));
 
         // get task master owner
         try {
@@ -135,10 +172,8 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
      * worker.
      *
      * @return
-     *
-     * @TODO Test if the Worker is up and if have good pings
      */
-    protected synchronized Worker getFreeWorker()
+    protected synchronized UUID getFreeWorker()
     {
         // get the next free worker
         if (this.freeWorkers.size() == 0) {
@@ -147,6 +182,18 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
         else {
             return this.freeWorkers.remove(0);
         }
+    }
+
+    /**
+     * Get a worker by their UUID
+     *
+     * @param uuid
+     *
+     * @return
+     */
+    protected Worker getWorkerByUUID(UUID uuid)
+    {
+        return this.registeredWorks.get(uuid);
     }
 
     /**
@@ -191,6 +238,10 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
             this.processorTaskQueue = new ProcessorTaskQueue(this);
             this.processorTaskQueue.start();
 
+            // start the workers monitor thread
+            this.workersMonitorThread = new WorkersMonitorThread(this);
+            this.workersMonitorThread.start();
+
             // make server has started
             this.connected = true;
         } catch (Exception ex) {
@@ -204,8 +255,11 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
      */
     public void disconnect()
     {
-        // stop processor queue tasks
-        this.processorTaskQueue.stopProcessor();
+        // stop processor for the tasks
+        this.processorTaskQueue.interrupt();
+
+        // stop workers monitor thread
+        this.workersMonitorThread.interrupt();
 
         // unregister the TaskBag
         try {

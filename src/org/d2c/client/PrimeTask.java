@@ -118,7 +118,7 @@ public class PrimeTask extends UnicastRemoteObject implements Task<List<Integer>
     }
 
     @Override
-    public UUID getUID() throws RemoteException
+    public UUID getUUID() throws RemoteException
     {
         return this.taskUUID;
     }

@@ -83,14 +83,14 @@ public class MasterEngine extends UnicastRemoteObject implements Master {
             // created
             if ((upper - lower) > 1000) {
                 // send a new task for the TaskBag
-                this.taskBag.receiveTask(new PrimeTask(lower, lower + 1000, this));
+                this.taskBag.registerTask(new PrimeTask(lower, lower + 1000, this));
 
                 // increment lower value in 1000
                 lower += 1000;
             }
             else {
                 // send a new task for the TaskBag
-                this.taskBag.receiveTask(new PrimeTask(lower, upper, this));
+                this.taskBag.registerTask(new PrimeTask(lower, upper, this));
                 break;
             }
         }

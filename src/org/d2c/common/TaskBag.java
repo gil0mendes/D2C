@@ -2,6 +2,7 @@ package org.d2c.common;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public interface TaskBag extends Remote {
 
@@ -10,7 +11,7 @@ public interface TaskBag extends Remote {
      *
      * @param task
      */
-    void receiveTask(Task task) throws RemoteException;
+    void registerTask(Task task) throws RemoteException;
 
     /**
      * Register a new Worker.
@@ -20,6 +21,15 @@ public interface TaskBag extends Remote {
      * @throws RemoteException
      */
     void registerWorker(Worker worker) throws RemoteException;
+
+    /**
+     * Remove the worker
+     *
+     * @param workerUUID
+     *
+     * @throws RemoteException
+     */
+    void removeWorker(UUID workerUUID) throws RemoteException;
 
     /**
      * This method receives the tasks results and redirect to the owner Master

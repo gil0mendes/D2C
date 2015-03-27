@@ -87,7 +87,7 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
 
             // process the task
             try {
-                Logger.info("Task (" + this.task.getUID() + ") is now running");
+                Logger.info("Task (" + this.task.getUUID() + ") is now running");
                 taskResult = this.task.run();
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -99,7 +99,7 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
             // inform the TaskBag
             try {
                 WorkerMain.this.taskBag.responseTaskCallback(task, taskResult);
-                Logger.info("Task (" + this.task.getUID() + ") was end their job");
+                Logger.info("Task (" + this.task.getUUID() + ") was end their job");
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

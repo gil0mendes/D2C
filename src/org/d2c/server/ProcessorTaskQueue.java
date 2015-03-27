@@ -5,7 +5,9 @@ import org.d2c.common.Task;
 import org.d2c.common.Worker;
 import org.d2c.common.exceptions.BusyWorkerException;
 
+import java.rmi.ConnectException;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public class ProcessorTaskQueue extends Thread {
 
@@ -18,11 +20,6 @@ public class ProcessorTaskQueue extends Thread {
      * TaskBag instance
      */
     private TaskBagServer taskBagServer;
-
-    /**
-     * This var informs the thread if is to running
-     */
-    private boolean running = false;
 
     public ProcessorTaskQueue(TaskBagServer taskBagServer)
     {
@@ -40,32 +37,37 @@ public class ProcessorTaskQueue extends Thread {
     @Override
     public void run()
     {
-        // put thread running
-        this.running = true;
-
         // var to handle the next Task
         Task nextTask;
 
         // var to handle the next free Worker
+        UUID nextWorkerUUID;
+
+        // worker instance
         Worker nextWorker;
 
-        while (this.running) {
+        while (true) {
             if ((nextTask = this.taskBagServer.getNextTask()) != null) {
                 // Schedule task to a free worker
-                while (this.running) {
-                    if ((nextWorker = this.taskBagServer.getFreeWorker()) != null) {
+                while (true) {
+                    if ((nextWorkerUUID = this.taskBagServer.getFreeWorker()) != null) {
+                        // get the worker instance
+                        nextWorker = this.taskBagServer.getWorkerByUUID(nextWorkerUUID);
+
                         try {
                             // send the task to the free worker
-                            nextWorker.receive(nextTask);
+                            try {
+                                // associate task to worker
+                                this.taskBagServer.busyWorkers.put(nextTask, nextWorkerUUID);
 
-                            // associate task to worker
-                            this.taskBagServer.busyWorkers.put(nextTask.getUID(), nextWorker);
+                                nextWorker.receive(nextTask);
+                            } catch (Exception ex) {
+                                // remove the Worker
+                                this.taskBagServer.removeWorker(nextWorkerUUID);
+                            }
 
-                            Logger.info("The task " + nextTask.getUID() + " has been scheduled to a free worker");
+                            Logger.info("The task " + nextTask.getUUID() + " has been scheduled to a free worker");
                         } catch (RemoteException e) {
-                            e.printStackTrace();
-                        } catch (BusyWorkerException e) {
-                            Logger.error("The worker are busy");
                             e.printStackTrace();
                         }
 
@@ -92,14 +94,5 @@ public class ProcessorTaskQueue extends Thread {
                 }
             }
         }
-    }
-
-    /**
-     * Stop processor thread
-     */
-    public void stopProcessor()
-    {
-        this.running = false;
-        this.interrupt();
     }
 }

@@ -10,7 +10,7 @@ public interface TaskBag extends Remote {
      *
      * @param task
      */
-    public abstract void receiveTask(Task task) throws RemoteException;
+    void receiveTask(Task task) throws RemoteException;
 
     /**
      * Register a new Worker.
@@ -19,7 +19,7 @@ public interface TaskBag extends Remote {
      *
      * @throws RemoteException
      */
-    public abstract void registerWorker(Worker worker) throws RemoteException;
+    void registerWorker(Worker worker) throws RemoteException;
 
     /**
      * This method receives the tasks results and redirect to the owner Master
@@ -29,6 +29,6 @@ public interface TaskBag extends Remote {
      *
      * @throws RemoteException
      */
-    public abstract void responseTaskCallback(Task task, Object result) throws RemoteException;
+    void responseTaskCallback(Task task, Object result) throws RemoteException;
 
 }

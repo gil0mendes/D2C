@@ -39,9 +39,9 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
     }
 
     @Override
-    public int ping() throws RemoteException
+    public String ping() throws RemoteException
     {
-        return 0;
+        return "OK";
     }
 
     @Override

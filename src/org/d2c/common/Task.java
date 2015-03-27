@@ -9,7 +9,7 @@ public interface Task<T> extends Remote {
     /**
      * Execute an ambiguous operation
      */
-    public abstract T run() throws RemoteException;
+    T run() throws RemoteException;
 
     /**
      * Get the task UUID
@@ -18,7 +18,7 @@ public interface Task<T> extends Remote {
      *
      * @throws RemoteException
      */
-    public abstract UUID getUID() throws RemoteException;
+    UUID getUID() throws RemoteException;
 
     /**
      * Get the Master owner of this task.
@@ -27,6 +27,6 @@ public interface Task<T> extends Remote {
      *
      * @throws RemoteException
      */
-    public abstract Master getMaster() throws RemoteException;
+    Master getMaster() throws RemoteException;
 
 }

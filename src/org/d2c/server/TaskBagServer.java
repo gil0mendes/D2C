@@ -82,7 +82,7 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
         // add the new received task to the queue
         // to be processed later
         synchronized (tasks) {
-            System.out.println("=> new task received");
+            Logger.info("New task received");
             tasks.add(task);
         }
     }

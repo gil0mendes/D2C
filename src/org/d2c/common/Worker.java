@@ -13,21 +13,22 @@ public interface Worker extends Remote {
      *
      * @return
      */
-    public abstract int ping() throws RemoteException;
+    String ping() throws RemoteException;
 
     /**
      * Receive a task to be processed.
      *
      * @param task
+     *
      * @throws RemoteException
      */
-    public abstract void receive(Task task) throws RemoteException, BusyWorkerException;
+    void receive(Task task) throws RemoteException, BusyWorkerException;
 
     /**
      * Get UUID
      *
      * @return
      */
-    public abstract UUID getUUID() throws RemoteException;
+    UUID getUUID() throws RemoteException;
 
 }

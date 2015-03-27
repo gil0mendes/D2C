@@ -5,34 +5,65 @@ import org.d2c.common.Task;
 import org.d2c.common.TaskBag;
 import org.d2c.common.Worker;
 
-import java.net.URL;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RemoteObject;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-public class TaskBagServer implements TaskBag {
+public class TaskBagServer extends RemoteObject implements TaskBag {
+
+    /**
+     * Save this class instance
+     */
+    private static TaskBagServer instance = new TaskBagServer();
+
+    /**
+     * Return the TaskBagServer class instance
+     *
+     * @return
+     */
+    public static TaskBagServer getInstance()
+    {
+        return instance;
+    }
+
+    /**
+     * Save the server state
+     */
+    private boolean connected = false;
 
     /**
      * Queue with all tasks who needs be processed
      */
-    private Queue<Task> tasks = new LinkedList<Task>();
+    private Queue<Task> tasks = new LinkedList<>();
 
     /**
      * List of registered workers
      */
-    protected List<Worker> registeredWorks = new LinkedList<Worker>();
+    protected List<Worker> registeredWorks = new LinkedList<>();
 
     /**
      * List of free workers
      */
-    protected List<Worker> freeWorkers = new LinkedList<Worker>();
+    protected List<Worker> freeWorkers = new LinkedList<>();
 
     /**
      * List of busy workers
      */
-    protected HashMap<UUID, Worker> busyWorkers = new LinkedHashMap<UUID, Worker>();
+    protected HashMap<UUID, Worker> busyWorkers = new LinkedHashMap<>();
+
+    /**
+     * Instance for registry
+     */
+    private Registry registry;
+
+    /**
+     * ProcessorTaskQueue instance
+     */
+    private ProcessorTaskQueue processorTaskQueue = new ProcessorTaskQueue(this);
 
     public TaskBagServer()
     {
@@ -118,42 +149,105 @@ public class TaskBagServer implements TaskBag {
         }
     }
 
-    public static void main(String[] args)
+    /**
+     * Return the current server state
+     *
+     * @return
+     */
+    public boolean isConnected()
     {
-        // start Logger
-        Logger.config(1);
+        return connected;
+    }
 
-        // set configurations for the JAVA Security Policy
-        ClassLoader cl = TaskBagServer.class.getClassLoader();
-        URL policyURL = cl.getResource("org/d2c/common/policy.all");
-        System.setProperty("java.security.policy", policyURL.toString());
+    /**
+     * Startup the server
+     */
+    public void connect()
+    {
+        // reset the TaskBag state
+        this.reset();
 
-        // set the security manager
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
-
+        // start the server
         try {
-            // create a new registry
-            Registry registry;
-
+            // try get the registry, if not exists create one
             try {
-                registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+                this.registry = LocateRegistry.getRegistry();
+                this.registry.list();
             } catch (Exception ex) {
-                registry = LocateRegistry.getRegistry();
+                this.registry = LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
             }
 
             // registry TaskBag class
-            TaskBag taskBagInstance = new TaskBagServer();
-            TaskBag taskBagStub = (TaskBag) UnicastRemoteObject.exportObject(taskBagInstance, 0);
-            registry.rebind("TaskBag", taskBagStub);
-            Logger.info("TaskBag registered!\nServer is now running...");
+            TaskBag taskBagStub = this;
+            try {
+                taskBagStub = (TaskBag) UnicastRemoteObject.exportObject(this, 0);
+            } catch (Exception ex) {
+            }
+
+            this.registry.rebind("TaskBag", taskBagStub);
+            Logger.info("Server is now running...");
 
             // start processing the tasks queue
-            (new ProcessorTaskQueue((TaskBagServer) taskBagInstance)).run();
+            this.processorTaskQueue = new ProcessorTaskQueue(this);
+            this.processorTaskQueue.start();
+
+            // make server has started
+            this.connected = true;
         } catch (Exception ex) {
             System.out.println("Server exception:");
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Disconnect the server
+     */
+    public void disconnect()
+    {
+        // stop processor queue tasks
+        this.processorTaskQueue.stopProcessor();
+
+        // unregister the TaskBag
+        try {
+            this.registry.unbind("TaskBag");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+        }
+
+        // make the server disconnected
+        this.connected = false;
+    }
+
+    /**
+     * Reset the TaskBag state
+     */
+    private void reset()
+    {
+        this.tasks.clear();
+        this.registeredWorks.clear();
+        this.freeWorkers.clear();
+        this.busyWorkers.clear();
+    }
+
+    /**
+     * Get the number of waiting tasks
+     *
+     * @return
+     */
+    public int getNumberOfWaitingTasks()
+    {
+        return this.tasks.size();
+    }
+
+    /**
+     * Get the number of registered workers.
+     *
+     * @return
+     */
+    public int getNumberOfWorkers()
+    {
+        return this.registeredWorks.size();
     }
 }

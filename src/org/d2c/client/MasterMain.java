@@ -13,7 +13,7 @@ import java.rmi.registry.Registry;
 import java.util.Iterator;
 import java.util.List;
 
-public class Main extends Application {
+public class MasterMain extends Application {
 
     /**
      * Save the start timestamp
@@ -70,7 +70,7 @@ public class Main extends Application {
         Logger.config(1);
 
         // set configurations for the JAVA Security Policy
-        ClassLoader cl = Main.class.getClassLoader();
+        ClassLoader cl = MasterMain.class.getClassLoader();
         URL policyURL = cl.getResource("org/d2c/common/policy.all");
         System.setProperty("java.security.policy", policyURL.toString());
 

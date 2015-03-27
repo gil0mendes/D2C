@@ -127,7 +127,7 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
 
             // register the new worker
             WorkerMain worker = new WorkerMain();
-            registry.bind(worker.getUUID() , worker);
+            registry.bind(worker.getUUID().toString() , worker);
 
             // get the TaskBag
             worker.taskBag = (TaskBag) registry.lookup("TaskBag");

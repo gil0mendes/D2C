@@ -1,0 +1,54 @@
+/** All Elements **/
+.green-button
+{
+    -fx-background-color: #56b76a;
+    -fx-background-radius: 2;
+    -fx-text-fill: #FFFFFF;
+}
+
+.green-button:hover
+{
+    -fx-cursor: hand;
+    -fx-background-color: #58a35d;
+}
+
+.red-button
+{
+    -fx-background-color: #ed604d;
+    -fx-background-radius: 2;
+    -fx-text-fill: #FFFFFF;
+}
+
+.red-button:hover
+{
+    -fx-background-color: #e3513d;
+    -fx-cursor: hand;
+}
+
+/* Page Title */
+.pageTitle
+{
+    -fx-alignment: center;
+    -fx-font-size: 20;
+}
+
+/** Root **/
+#body
+{
+    -fx-background-color: #f3f3f3;
+}
+
+.sidebar-tab
+{
+    -fx-background-color: transparent;
+}
+
+.sidebar-tab:hover
+{
+    -fx-cursor: hand;
+    -fx-pref-width: 70;
+    -fx-pref-height: 70;
+    -fx-background-color: #e75e3f;
+}
+
+/** State Pane **/

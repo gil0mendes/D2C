@@ -7,7 +7,7 @@ import org.d2c.common.exceptions.BusyWorkerException;
 
 import java.rmi.RemoteException;
 
-public class ProcessorTaskQueue implements Runnable {
+public class ProcessorTaskQueue extends Thread {
 
     /**
      * Time to wait for new tasks
@@ -18,6 +18,11 @@ public class ProcessorTaskQueue implements Runnable {
      * TaskBag instance
      */
     private TaskBagServer taskBagServer;
+
+    /**
+     * This var informs the thread if is to running
+     */
+    private boolean running = false;
 
     public ProcessorTaskQueue(TaskBagServer taskBagServer)
     {
@@ -35,16 +40,19 @@ public class ProcessorTaskQueue implements Runnable {
     @Override
     public void run()
     {
+        // put thread running
+        this.running = true;
+
         // var to handle the next Task
         Task nextTask;
 
         // var to handle the next free Worker
         Worker nextWorker;
 
-        while (true) {
+        while (this.running) {
             if ((nextTask = this.taskBagServer.getNextTask()) != null) {
                 // Schedule task to a free worker
-                while (true) {
+                while (this.running) {
                     if ((nextWorker = this.taskBagServer.getFreeWorker()) != null) {
                         try {
                             // send the task to the free worker
@@ -84,5 +92,14 @@ public class ProcessorTaskQueue implements Runnable {
                 }
             }
         }
+    }
+
+    /**
+     * Stop processor thread
+     */
+    public void stopProcessor()
+    {
+        this.running = false;
+        this.interrupt();
     }
 }

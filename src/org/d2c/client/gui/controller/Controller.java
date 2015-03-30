@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import org.d2c.client.MasterEngine;
+import org.d2c.common.gui.dialogs.StringDialog;
 
 import java.rmi.registry.Registry;
 import java.util.Iterator;
@@ -93,11 +94,11 @@ public class Controller {
 
                 // check if the end number is great than start number
                 if (endNumber < startNumber) {
-                    // @TODO Show error message
+                    StringDialog.buildAndShow("Invalid interval!", "Input Error");
                     return;
                 }
             } catch (Exception ex) {
-                // @TODO Show error message
+                StringDialog.buildAndShow("Invalid number!", "Input Error");
                 return;
             }
 

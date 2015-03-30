@@ -111,6 +111,12 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
         // start Logger
         Logger.config(1);
 
+        // check if have enough arguments
+        if (args.length < 1) {
+            System.out.println("usage: java (...) <REMOTE_SERVER_IP>");
+            return;
+        }
+
         // set configurations for the JAVA Security Policy
         ClassLoader cl = WorkerMain.class.getClassLoader();
         URL policyURL = cl.getResource("org/d2c/common/policy.all");
@@ -123,11 +129,11 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
 
         try {
             // get the registry
-            Registry registry = LocateRegistry.getRegistry(Registry.REGISTRY_PORT);
+            Registry registry = LocateRegistry.getRegistry(args[0], Registry.REGISTRY_PORT);
 
             // register the new worker
             WorkerMain worker = new WorkerMain();
-            registry.bind(worker.getUUID().toString() , worker);
+            registry.bind(worker.getUUID().toString(), worker);
 
             // get the TaskBag
             worker.taskBag = (TaskBag) registry.lookup("TaskBag");

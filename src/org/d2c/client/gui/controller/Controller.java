@@ -2,11 +2,14 @@ package org.d2c.client.gui.controller;
 
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.d2c.client.MasterEngine;
 import org.d2c.common.gui.dialogs.StringDialog;
 
+import java.awt.*;
 import java.rmi.registry.Registry;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +41,8 @@ public class Controller {
     public TextField intervalEnd;
     @FXML
     public Button calculateButton;
+    @FXML
+    public TextArea result;
 
     public Controller()
     {
@@ -73,15 +78,17 @@ public class Controller {
                 // @TODO Display the result on the GUI
                 List<Integer> list = (List<Integer>) args[0];
 
-                System.out.println("Diff time: " + this.getLastDiffTime() + " ms");
-                System.out.println("Number of found number: " + list.size());
-                System.out.println("Founded numbers: ");
+                //Message for the output
+                String message = "Diff time: " + this.getLastDiffTime() + " ms\n"+"Number of found number: " + list.size()+"\nFounded numbers: \n";
+
                 Iterator it = list.iterator();
 
                 while (it.hasNext()) {
-                    System.out.print(it.next() + " ");
+                    message += message + it.next() + " ";
                 }
 
+                //Puts the in the output
+                result.setText(message);
                 // re-enable the button
                 this.calculateButton.setDisable(false);
             });
@@ -110,6 +117,7 @@ public class Controller {
 
             // start the calculation
             this.masterEngine.calculatePrimeNumbers(startNumber, endNumber);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }

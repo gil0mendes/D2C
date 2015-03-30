@@ -24,5 +24,7 @@
 
         <Button fx:id="calculateButton" onMouseClicked="#startCalculation" mnemonicParsing="false" text="Calculate"
                 GridPane.columnIndex="0" GridPane.rowIndex="2" alignment="CENTER"/>
+
+        <TextArea fx:id="result" GridPane.columnIndex="0" GridPane.rowIndex="3" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="2" />
     </children>
 </GridPane>

@@ -1,5 +1,7 @@
 package org.d2c.client.gui.controller;
 
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -75,22 +77,28 @@ public class Controller {
                 // register end time
                 endTime = System.currentTimeMillis();
 
-                // @TODO Display the result on the GUI
+                // get list of results from the args argument
                 List<Integer> list = (List<Integer>) args[0];
 
-                //Message for the output
-                String message = "Diff time: " + this.getLastDiffTime() + " ms\n"+"Number of found number: " + list.size()+"\nFounded numbers: \n";
+                // Message for the output
+                StringBuilder messageBuilder = new StringBuilder("Diff time: " +
+                        this.getLastDiffTime() +
+                        " ms\n" + "Number of found number: " +
+                        list.size() + "\nFounded numbers: \n");
 
                 Iterator it = list.iterator();
 
                 while (it.hasNext()) {
-                    message += message + it.next() + " ";
+                    messageBuilder.append(it.next() + " ");
                 }
 
-                //Puts the in the output
-                result.setText(message);
-                // re-enable the button
-                this.calculateButton.setDisable(false);
+                Platform.runLater(() -> {
+                    // Puts the in the output
+                    this.result.setText(messageBuilder.toString());
+
+                    // re-enable the button
+                    this.calculateButton.setDisable(false);
+                });
             });
 
             // get the interval from the GUI

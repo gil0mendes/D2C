@@ -113,7 +113,7 @@ public class WorkerMain extends UnicastRemoteObject implements Worker {
 
         // check if have enough arguments
         if (args.length < 1) {
-            System.out.println("usage: java (...) <REMOTE_SERVER_IP>");
+            System.out.println("usage: java org.d2c.worker.WorkerMain <REMOTE_SERVER_IP>");
             return;
         }
 

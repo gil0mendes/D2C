@@ -3,13 +3,8 @@ package org.d2c.server;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.d2c.common.CallbackHandler;
 import org.d2c.common.Logger;
 import org.d2c.server.gui.controller.StateController;
 
@@ -31,11 +26,6 @@ public class ServerMain extends Application {
      * Root layout class
      */
     private BorderPane rootLayout;
-
-    /**
-     * Sidebar
-     */
-    private FlowPane sideBar;
 
     /**
      * Entry point method
@@ -82,9 +72,6 @@ public class ServerMain extends Application {
             // define the action on window closing
             this.primaryStage.setOnCloseRequest((windowEvent) -> TaskBagServer.getInstance().disconnect());
 
-            // creates the sidebar
-            this.createSidebarMenu();
-
             // show the connection state
             this.showState();
         } catch (Exception ex) {
@@ -93,55 +80,11 @@ public class ServerMain extends Application {
         }
     }
 
-    private void generateSidebarItem(String optionName, String imageName, CallbackHandler handler)
-    {
-        // create a new pane
-        Pane pane = new Pane();
-        pane.setId("sidebarOption" + optionName);
-        pane.getStyleClass().add("sidebar-tab");
-
-        // define event
-        pane.setOnMouseClicked((mouseEvent) -> {
-            if (handler != null) {
-                handler.callback(mouseEvent);
-            }
-        });
-
-        // create the ImageView
-        ImageView imageView = new ImageView(new Image(ServerMain.class.getResourceAsStream("../common/gui/resources/" + imageName)));
-
-        // add the image to the pane
-        pane.getChildren().add(imageView);
-
-        this.sideBar.getChildren().add(pane);
-    }
-
     /**
      * Show the connection state
      */
     private void showState()
     {
         this.rootLayout.setCenter(StateController.getInstance());
-    }
-
-    /**
-     * Creates and add the sidebar to the scene
-     */
-    private void createSidebarMenu()
-    {
-        // create the sidebar
-        this.sideBar = new FlowPane();
-        this.sideBar.setVgap(3);
-        this.sideBar.setHgap(3);
-        this.sideBar.setPrefWrapLength(70);
-        this.sideBar.setMaxHeight(70);
-        this.sideBar.setStyle("-fx-background-color: #ed6b4d");
-
-        // adds the sidebar options
-        // -- server state
-        this.generateSidebarItem("serverState", "stateIcon.png", args -> ServerMain.this.showState());
-
-        // add the sidebar to the scene
-        this.rootLayout.setLeft(this.sideBar);
     }
 }

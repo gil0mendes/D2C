@@ -267,6 +267,11 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
      */
     public void disconnect()
     {
+        // check if is already disconnected
+        if (!this.isConnected()) {
+            return;
+        }
+
         // stop processor for the tasks
         this.processorTaskQueue.interrupt();
 

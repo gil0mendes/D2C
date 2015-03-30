@@ -4,6 +4,7 @@
     -fx-background-color: #56b76a;
     -fx-background-radius: 2;
     -fx-text-fill: #FFFFFF;
+    -fx-padding: 10px;
 }
 
 .green-button:hover
@@ -17,6 +18,7 @@
     -fx-background-color: #ed604d;
     -fx-background-radius: 2;
     -fx-text-fill: #FFFFFF;
+    -fx-padding: 10px;
 }
 
 .red-button:hover

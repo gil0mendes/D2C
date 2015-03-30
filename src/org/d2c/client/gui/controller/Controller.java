@@ -1,17 +1,14 @@
 package org.d2c.client.gui.controller;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.d2c.client.MasterEngine;
 import org.d2c.common.gui.dialogs.StringDialog;
 
-import java.awt.*;
 import java.rmi.registry.Registry;
 import java.util.Iterator;
 import java.util.List;

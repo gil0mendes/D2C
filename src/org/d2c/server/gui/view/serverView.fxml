@@ -15,10 +15,12 @@
     </ImageView>
 
     <!-- label to show current number of connected workers -->
-    <Label fx:id="labelWorkerNodes" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <Label fx:id="labelWorkerNodes" alignment="CENTER" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+           GridPane.rowIndex="1"/>
 
     <!-- label to show the current number waiting tasks -->
-    <Label fx:id="labelWaitingTasks" alignment="CENTER" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+    <Label fx:id="labelWaitingTasks" alignment="CENTER" GridPane.halignment="CENTER" GridPane.columnIndex="0"
+           GridPane.rowIndex="2"/>
 
     <!-- label to show the current server state -->
     <Label fx:id="labelState" alignment="CENTER" text="Disconnected" GridPane.columnIndex="0"

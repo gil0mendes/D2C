@@ -80,9 +80,7 @@ public class ServerMain extends Application {
             this.primaryStage.show();
 
             // define the action on window closing
-            this.primaryStage.setOnCloseRequest((windowEvent) -> {
-                // @TODO Stop the server
-            });
+            this.primaryStage.setOnCloseRequest((windowEvent) -> TaskBagServer.getInstance().disconnect());
 
             // creates the sidebar
             this.createSidebarMenu();

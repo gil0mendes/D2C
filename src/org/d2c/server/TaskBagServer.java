@@ -1,9 +1,6 @@
 package org.d2c.server;
 
-import org.d2c.common.Logger;
-import org.d2c.common.Task;
-import org.d2c.common.TaskBag;
-import org.d2c.common.Worker;
+import org.d2c.common.*;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -73,6 +70,11 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
      */
     private WorkersMonitorThread workersMonitorThread;
 
+    /**
+     * Registered callbacks for handle server state changes
+     */
+    private List<CallbackHandler> callbackForServerChanges = new LinkedList<>();
+
     public TaskBagServer()
     {
     }
@@ -89,10 +91,11 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
     {
         // add the new received task to the queue
         // to be processed later
-        synchronized (tasks) {
-            Logger.info("New task (" + task.getUUID() + ") received");
-            tasks.add(task);
-        }
+        Logger.info("New task (" + task.getUUID() + ") received");
+        tasks.add(task);
+
+        // notify changes
+        this.notifyServerStateChanges();
     }
 
     @Override
@@ -106,6 +109,9 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
 
         // Inform the registry
         Logger.info("A new Worker (" + worker.getUUID() + ") as been registered");
+
+        // notify changes
+        this.notifyServerStateChanges();
     }
 
     @Override
@@ -135,6 +141,9 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
 
         // inform the worker kill
         Logger.info("The Worker(" + workerUUID + ") has been killed");
+
+        // notify changes
+        this.notifyServerStateChanges();
     }
 
     @Override
@@ -152,6 +161,9 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // notify changes
+        this.notifyServerStateChanges();
     }
 
     /**
@@ -303,5 +315,33 @@ public class TaskBagServer extends RemoteObject implements TaskBag {
     public int getNumberOfWorkers()
     {
         return this.registeredWorks.size();
+    }
+
+    /**
+     * Register a new callback to handle the server state changes
+     *
+     * @param handler
+     */
+    public void registerCallbackForServerChanges(CallbackHandler handler)
+    {
+        this.callbackForServerChanges.add(handler);
+    }
+
+    /**
+     * Unregister a callback to handle the server state changes
+     *
+     * @param handler
+     */
+    public void removeCallbackForServerChanges(CallbackHandler handler)
+    {
+        this.callbackForServerChanges.remove(handler);
+    }
+
+    /**
+     * Notify changes to all handlers
+     */
+    private void notifyServerStateChanges()
+    {
+        this.callbackForServerChanges.forEach(handler -> handler.callback());
     }
 }

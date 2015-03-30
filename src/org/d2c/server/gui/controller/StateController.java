@@ -1,10 +1,12 @@
 package org.d2c.server.gui.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import org.d2c.common.CallbackHandler;
 import org.d2c.common.Logger;
 import org.d2c.server.TaskBagServer;
 
@@ -14,6 +16,11 @@ public class StateController extends GridPane {
      * Save the controller instance
      */
     private static StateController instance = new StateController();
+
+    /**
+     * handler for server changes
+     */
+    private CallbackHandler handlerForServerChanges;
 
     // Variables related with the layout elements
     @FXML
@@ -48,6 +55,9 @@ public class StateController extends GridPane {
             Logger.error(ex.getMessage());
             ex.printStackTrace();
         }
+
+        // config the handler
+        this.handlerForServerChanges = args -> Platform.runLater(() -> StateController.this.switchStateGUIUpdate());
     }
 
     public void switchState()
@@ -58,10 +68,16 @@ public class StateController extends GridPane {
         if (!taskBag.isConnected()) {
             // connect the server
             taskBag.connect();
+
+            // register a new handler
+            TaskBagServer.getInstance().registerCallbackForServerChanges(this.handlerForServerChanges);
         }
         else {
             // turn off the server
             taskBag.disconnect();
+
+            // unregister the handler
+            TaskBagServer.getInstance().removeCallbackForServerChanges(this.handlerForServerChanges);
         }
 
         // update the GUI info

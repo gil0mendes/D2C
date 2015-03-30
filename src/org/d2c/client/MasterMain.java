@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.d2c.common.CallbackHandler;
 import org.d2c.common.Logger;
 
 import java.net.URL;
@@ -15,53 +14,13 @@ import java.util.List;
 
 public class MasterMain extends Application {
 
-    /**
-     * Save the start timestamp
-     */
-    protected static long startTime;
-
-    /**
-     * Save the end timestamp
-     */
-    protected static long endTime;
-
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
+        Parent root = FXMLLoader.load(getClass().getResource("./gui/view/masterView.fxml"));
+        primaryStage.setTitle("D2C - Master");
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
-
-        // @TODO TEST
-        try {
-            MasterEngine me = new MasterEngine(Registry.REGISTRY_PORT);
-
-            // register start time
-            startTime = System.currentTimeMillis();
-            me.calculatePrimeNumbers(0, 20000);
-            me.setCallback(new CallbackHandler() {
-                @Override
-                public void callback(Object... args)
-                {
-                    // register end time
-                    endTime = System.currentTimeMillis();
-                    List<Integer> list = (List<Integer>) args[0];
-
-                    System.out.println("Diff time: " + (endTime - startTime) + " ms");
-                    System.out.println("Number of found number: " + list.size());
-                    System.out.println("Founded numbers: ");
-                    Iterator it = list.iterator();
-
-                    while (it.hasNext()) {
-                        System.out.print(it.next() + " ");
-                    }
-                }
-            });
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
     }
 
     public static void main(String[] args)

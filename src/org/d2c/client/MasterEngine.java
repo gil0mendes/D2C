@@ -59,7 +59,7 @@ public class MasterEngine extends UnicastRemoteObject implements Master {
      *
      * @throws Exception
      */
-    protected void calculatePrimeNumbers(Integer lower, Integer upper) throws Exception
+    public void calculatePrimeNumbers(Integer lower, Integer upper) throws Exception
     {
         // test numbers
         if (lower > upper) {
@@ -126,7 +126,7 @@ public class MasterEngine extends UnicastRemoteObject implements Master {
         }
     }
 
-    protected void setCallback(CallbackHandler callback)
+    public void setCallback(CallbackHandler callback)
     {
         this.callback = callback;
     }

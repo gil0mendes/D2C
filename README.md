@@ -2,7 +2,7 @@
 Divide-To-Conquer (JAVA RMI Task Dispatching)
 
 # Algumas considerações
-* Mais que um Master
+* ~~Mais que um Master~~
 * ~~Failover nos works~~
 * ~~Concorrência~~
 * ~~Tratar de um slow-worker~~

@@ -70,7 +70,7 @@ public class MasterEngine extends UnicastRemoteObject implements Master {
         this.receivedResponses = this.sendedResponses = 0;
 
         // set result list
-        this.finalResult = new LinkedList<Integer>();
+        this.finalResult = new LinkedList<>();
 
         // run until lower becomes bigger than upper
         // or when the cycle is break
